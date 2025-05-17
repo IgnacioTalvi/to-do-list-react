@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ToDoCard from "./ToDoCard/ToDoCard";
 import "./ToDoList.css";
 import data from "./data.js"
@@ -7,7 +7,8 @@ const ToDoList = () => {
 
   // // Estado inicial del array
   const [items, setItems] = useState(data);
-  const [values, setValues] = useState ({day: "", task: "", category: ""}) 
+  const [values, setValues] = useState ({day: "", task: "", category: ""})
+  const [taskAdded, setTaskAdded] = useState(false);
 
   const inputRef = useRef(""); // esta referencia será un string vacío al principio
 
@@ -28,11 +29,25 @@ const ToDoList = () => {
     setItems([...items,new_item]);
   }
 
+  useEffect(() => {
+    if (taskAdded) {
+      console.log("Hola");
+      
+
+      const timer = setTimeout(() => {
+        setTaskAdded(false);
+      }, 5000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [taskAdded]);
+
   const handleChange = (e) => {
     setValues({
       ...values,
       [e.target.name]: e.target.value,
     });
+    
   };
 
   const handleSubmit = (e) => {
@@ -40,7 +55,9 @@ const ToDoList = () => {
     console.log(values);
     addItem(values);
     setValues({day: "", task: "", category:""});
+    setTaskAdded (true);
   };
+
 
   return <>
   <div className="todo-container"> 
@@ -49,16 +66,18 @@ const ToDoList = () => {
     <form onSubmit={handleSubmit}>
 
     <div className="inputs-container"> 
-      <label htmlFor="name">Día</label><br />
+      <label htmlFor="day">Día</label><br />
       <input type="text" name="day" value={values.day} onChange={handleChange} /><br />
 
-      <label htmlFor="name">Tarea</label><br />
-      <input type="text" name="task" value={values.task} onChange={handleChange} /><br />
+      <label htmlFor="task">Tarea</label><br />
+      <input type="text" name="task" value={values.task} onChange={handleChange} minLength='6' /><br />
 
-      <label htmlFor="name">Categoria</label><br />
-      <input type="text" name="category" value={values.category} onChange={handleChange} /><br />
+      <label htmlFor="category">Categoria</label><br />
+      <input type="text" name="category" value={values.category} onChange={handleChange}/><br />
 
     </div> 
+
+    {taskAdded && <p>Tarea añadida</p>}
 
     {values.day && values.task && values.category ?
         <button type="submit">Crear tarea</button>:
